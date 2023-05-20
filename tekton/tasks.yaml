@@ -34,7 +34,7 @@ spec:
       default: "sqlite:///test.db"  
   steps:
     - name: nosetests
-      image: "python:3.9-slim"
+      image: python:3.9-slim
       workingDir: $(workspaces.source.path)
       env:
         - name: database_uri
@@ -43,12 +43,13 @@ spec:
         #!/bin/bash
         set -e
         
-        echo -e "====================================== \n ==== installing dependencies ========= \n ======================================"
+        echo "==== installing dependencies ======"
         python -m pip install --upgrade pip wheel
         pip install -qr requirements.txt
         
-        echo -e "====================================== \n ==== performing  nosetests =========== \n ======================================"
+        echo "==== performing  nosetests ======="
         nosetests $(params.args)
+        # nosetests -v --with-spec --spec-color
 ---
 apiVersion: tekton.dev/v1beta1
 kind: Task
