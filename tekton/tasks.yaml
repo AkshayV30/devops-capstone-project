@@ -18,6 +18,41 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
+  name: nose
+spec:
+  description: This task will perform nosetests 
+  workspaces:
+    - name: source
+  params:
+    - name: args
+      description: passing argument
+      type: string
+      default: "-v"
+    - name: database_uri
+      description: default url for database
+      type: string
+      default: "sqlite:///test.db"  
+  steps:
+    - name: nosetests
+      image: "python:3.9-slim"
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: database_uri
+          value: $(params.database_uri)
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo -e "====================================== \n ==== installing dependencies ========= \n ======================================"
+        python -m pip install --upgrade pip wheel
+        pip install -qr requirements.txt
+        
+        echo -e "====================================== \n ==== performing  nosetests =========== \n ======================================"
+        nosetests $(params.args)
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
   name: cleanup
 spec:
   description: This task will clean up a workspace by deleting all of the files.
@@ -49,4 +84,3 @@ spec:
           # Delete files and directories starting with .. plus any other character
           rm -rf "${WORKSPACE_SOURCE_PATH}"/..?*
         fi
-
